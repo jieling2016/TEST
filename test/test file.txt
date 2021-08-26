@@ -1,2 +1,6 @@
 I am here
+<<<<<<< HEAD
 i am ben
+=======
+i am jchen
+>>>>>>> 8384826ca40d22f3e5908d611f10cd3e4f7aa8f3
