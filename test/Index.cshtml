@@ -1,0 +1,326 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";   
+}
+<div class="row">
+    <div class="col-lg-6">
+        <div id="panel-2" class="panel panel-default">
+            <div class="panel-heading">
+                <span class="title elipsis">
+                    <strong>Monitor Activity Overview</strong> <!-- panel title -->
+                    <small>(<span style="color:green"><i class="fa fa-check"></i></span> -no time out/warning till now)</small>
+                </span>
+
+                <!-- tabs nav -->
+                <ul class="nav nav-tabs pull-right">
+                    <li class="active">
+                        <!-- TAB 1 -->
+                        <a href="#ttab1" id="ActivityToday" data-toggle="tab">Today</a>
+                    </li>
+                    <li class="">
+                        <!-- TAB 2 -->
+                        <a href="#ttab2" id="last7days" data-toggle="tab">Last 7 days</a>
+                    </li>
+                </ul>
+                <!-- /tabs nav -->
+
+            </div>
+
+            <!-- panel content -->
+            <div class="panel-body" style="padding-bottom: 0px;">
+                <!-- tabs content -->
+                <div class="tab-content transparent">
+                    <div id="ttab1" class="tab-pane active">
+                        <img src="~/Data/images/busy.gif" />
+                    </div>
+                    <div id="ttab2" class="tab-pane">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div id="panel-3" class="panel panel-default">
+            <div class="panel-heading">
+                <span class="title elipsis">
+                    <strong>TODAY'S ACTIVITIES WARNING MESSAGES</strong> <!-- panel title -->
+                </span>
+            </div>
+            <!-- Warning Messages -->
+            <div class="panel-body" id="WarningMessage">
+                <img src="~/Data/images/busy.gif" />
+            </div>
+        </div>
+        <!-- Scheduled process -->
+        <div class="panel panel-default" id="ScheduledProcessPartial">
+            @Html.Action("ScheduledProcessPartial", "Home")
+        </div>
+
+        <!-- Pie Chart -->
+        <div id="panel-graphs-flot-1" class="panel panel-default">
+            <div class="panel-body nopadding" style="height:260px">
+                <!-- panel content -->
+                <div class="col-lg-6" style="text-align:center">
+                    <span class="title elipsis">
+                        <strong>Time out warning last 7 days</strong>
+                    </span>
+                    <div id="flot-pie1" class="flot-chart" style="margin-top:20px;"><!-- FLOT CONTAINER --></div>
+                    <div id="legendContainer1" class="legend" style="width: 100%; height: 8em;margin-left:100px;margin-top:15px;"></div>
+                </div>
+                <div class="col-lg-6" style="text-align:center">
+                    <span class="title elipsis">
+                        <strong>Time out last 7 days</strong>
+                    </span>
+                    <div id="flot-pie2" class="flot-chart" style="margin-top:20px;"><!-- FLOT CONTAINER --></div>
+                    <div id="legendContainer2" class="legend" style="width: 100%; height: 8em;margin-left:100px;margin-top:15px;"></div>
+                </div>
+                <!-- /panel content -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div id="panel-1" class="panel panel-default">
+        <div class="panel-heading">
+            <span class="title elipsis">
+                <strong>Monitor response time charts</strong>
+                <small class="size-12 weight-300 text-mutted hidden-xs">@DateTime.Now.ToString("MM/dd/yyyy") </small><small id="timer"></small>
+                <a href="javascript:void(0)" id="Multiple">Multiple</a> &nbsp;/
+                <a href="javascript:void(0)" id="Single">Single</a>
+
+            </span>
+            <!-- right options -->
+            <ul class="options pull-right list-inline">
+                <li><a href="#" class="opt panel_colapse" data-toggle="tooltip" title="Colapse" data-placement="bottom"></a></li>
+                <li><a href="#" class="opt panel_fullscreen hidden-xs" data-toggle="tooltip" title="Fullscreen" data-placement="bottom"><i class="fa fa-expand"></i></a></li>
+                <li><a href="#" class="opt panel_close" data-confirm-title="Confirm" data-confirm-message="Are you sure you want to remove this panel?" data-toggle="tooltip" title="Close" data-placement="bottom"><i class="fa fa-times"></i></a></li>
+            </ul>
+            <!-- /right options -->
+            <div class="panel-body" id="timeChart">
+                <img src="~/Data/images/busy.gif" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/assets/plugins/chart.flot/jquery.flot.min.js"></script>
+<script type="text/javascript" src="/assets/plugins/chart.flot/jquery.flot.time.min.js"></script>
+<script type="text/javascript" src="/assets/plugins/chart.flot/jquery.flot.pie.min.js"></script>
+<script type="text/javascript" src="/assets/plugins/chart.flot/jquery.flot.tooltip.min.js"></script>
+<script type="text/javascript" src="/assets/plugins/chart.flot/jquery.flot.axislabels.js"></script>
+
+<script type="text/javascript">
+    $("#mutipleChart").show();
+    $("#chart").hide();
+    function openwindow() {
+        var myWindow = window.open("/Home/SchedulePrcocessPage", "", "toolbar=no,location = no,status = no,menubar = no, scrollbars = yes,resizable = yes,width=1200,height=600");
+    }
+    var myVar = setInterval(function () { myTimer() }, 1000);
+ 
+    function myTimer() {
+        var d = new Date();
+        var t = d.toLocaleTimeString();
+        document.getElementById("timer").innerHTML = t;
+    }
+
+    function FreshData() {
+        var loading = "<img src='/Data/images/busy.gif' />";
+        $('#ttab1').html("");
+        $('#timeChart').html("");
+        $('#WarningMessage').html("");
+     
+        
+        $('#ttab1').append(loading);
+        $('#timeChart').append(loading);
+        $('#WarningMessage').append(loading);
+      
+         $.ajax({
+                async: true,
+                url: "/Home/ActivityToday/",
+                data: {},
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    $('#ttab1').html(data);
+                    $('#ttab1').fadeIn('fast');
+                },
+                error: function (reponse) {
+                    alert("error : " + JSON.stringify(reponse));
+                }
+            });       
+
+         $.ajax({
+                async: true,
+                url: "/Home/WarningMessage/",
+                data: {},
+                cache: false,
+                type: "POST",
+             success: function (data) {
+                    $('#WarningMessage').html(data);
+                    $('#WarningMessage').fadeIn('fast');
+                },
+                error: function (reponse) {
+                    alert("error : " + JSON.stringify(reponse));
+                }
+         });
+
+        
+
+          $.ajax({
+                async: true,
+                url: "/Home/timeChart/",
+                data: {},
+                cache: false,
+                type: "POST",
+              success: function (data) {
+                 
+                    $('#timeChart').html(data);
+                    $('#timeChart').fadeIn('fast');
+                },
+                error: function (reponse) {
+                    alert("error : " + JSON.stringify(reponse));
+                }
+            });
+
+    }
+   
+    setInterval(function () {       
+        FreshData();
+    }, 300000);
+    var now = new Date($.now());
+    var strDate = now.getFullYear() + "/" + (now.getMonth() + 1) + "/" + now.getDate();
+    var start = new Date(strDate + " " + "9:00:00");
+    var end = new Date(strDate + " " + "14:00:00");
+    if (now > start && now < end) {
+        $.ajax({
+                async: true,
+                url: "/Home/ScheduledProcessPartial/",
+                data: {},
+                cache: false,
+                type: "POST",
+                success: function (data) {
+                    $('#ScheduledProcessPartial').html(data);
+                    $('#ScheduledProcessPartial').fadeIn('fast');
+                },
+                error: function (reponse) {
+                    alert("error : " + JSON.stringify(reponse));
+                }
+            });
+    }
+
+
+     $("#last7days").click(function () {
+      $.get('/Home/Last7days/' +"", function (data) {
+             $('#ttab2').html(data);
+            $('#ttab2').fadeIn('fast');
+         });
+     });
+
+    
+   // $(document).ready(function () {  
+        FreshData();
+        var getData = @Html.Raw(Json.Encode(ViewBag.get7Days));
+        var dataArray = getData;
+        var data_pie_timeout = [];
+        var data_pie_timeoutwarning = [];
+        if (dataArray != null) {
+            for (var j = 0; j < dataArray.length; j++) {
+                var ss = dataArray[j];
+                var name = ss.split('|')[0];
+                var dd1 = ss.split('|')[1];
+                var dd2 = ss.split('|')[2];
+                if (dd1 > 0) {
+                    data_pie_timeoutwarning.push({
+                        label: name,
+                        data: dd1
+                    });
+                }
+                if (dd2 > 0) {
+                    data_pie_timeout.push({
+                        label: name,
+                        data: dd2
+                    });
+                }
+            }
+        jQuery.plot(jQuery("#flot-pie1"), data_pie_timeoutwarning, {
+            series: {
+                pie: {
+                    show: true,
+                    innerRadius: 0.4,
+                    radius: 1,
+                    label: {
+                        show: false,
+                        radius: 1,
+                        formatter: function (label, series) {
+                            return '<div style="font-size:10px;font-weight:bold;text-align:center;padding:4px;color:gray;">' + label + "<br/>" + '<span style="color:black">' + Math.round(series.percent) + "%</span></div>";
+                        }
+                    }
+                }
+            },
+            tooltip: true,
+            tooltipOpts: {
+                cssClass: "flotTip",
+                content: "%p.0%, %s",
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            },
+            legend: {
+                show: true,
+                labelFormatter: function (label, series) {
+                    return '<div style="font-size:10px;font-weight:bold;text-align:left;padding-left:5px;color:gray;">' + label + "&nbsp;&nbsp;" + '<span style="color:black">' + Math.round(series.percent) + "%</span></div>"
+                },
+                labelBoxBorderColor: "black",
+                container: "#legendContainer1"
+            },
+            grid: {
+                hoverable: true,
+                clickable: true
+            },
+        });
+        jQuery.plot(jQuery("#flot-pie2"), data_pie_timeout, {
+            series: {
+                pie: {
+                    show: true,
+                    innerRadius: 0.4,
+                    radius: 1,
+                    label: {
+                        show: false,
+                        radius: 1,
+                        formatter: function (label, series) {
+                            return '<div style="font-size:10px;font-weight:bold;text-align:center;padding:4px;color:gray;">' + label + "<br/>" + '<span style="color:black">' + Math.round(series.percent) + "%</span></div>";
+                        }
+                    }
+                }
+            },
+            tooltip: true,
+            tooltipOpts: {
+                cssClass: "flotTip",
+                content: "%p.0%, %s",
+                shifts: {
+                    x: 20,
+                    y: 0
+                },
+                defaultTheme: false
+            },
+            legend: {
+                show: true,
+                labelFormatter: function (label, series) {
+                    return '<div style="font-size:10px;font-weight:bold;text-align:left;padding-left:5px;color:gray;">' + label + "&nbsp;&nbsp;" + '<span style="color:black">' + Math.round(series.percent) + "%</span></div>"
+                },
+                labelBoxBorderColor: "black",
+                container: "#legendContainer2"
+            },
+            grid: {
+                hoverable: true,
+                clickable: true
+            }
+
+        });
+    }
+  //  });
+
+</script>
