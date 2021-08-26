@@ -1,3 +1,4 @@
 Another file!
 Who can see what is happening next....?
 I have something to do jchen
+Bne add new line here at the same line number
