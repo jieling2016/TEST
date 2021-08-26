@@ -1,4 +1,8 @@
 Another file!
 Who can see what is happening next....?
 I have something to do jchen
+<<<<<<< .merge_file_a03848
 Bne add new line here at the same line number
+=======
+jchen add new line
+>>>>>>> .merge_file_a25120
